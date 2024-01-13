@@ -10,9 +10,21 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return 'index';
+        $query = Product::query();
+        if ($request->query->get('category') !== null) {
+            $query->where('category', '=', $request->query->get('category'));
+        }
+        if ($request->query->get('search') !== null) {
+            $query->where(function ($query) use ($request) {
+                $query->where('name', 'LIKE', "%{$request->query->get('search')}%")
+                    ->orWhere('description', 'LIKE', "%{$request->query->get('search')}%");
+            });
+        }
+        $products = $query->get();
+
+        return $products;
     }
 
     /**
